@@ -7,11 +7,12 @@ function PlayState () {
 	//numOfColumns = 10;
 	var score = 0;
 	//var lives = 10;
-	var lives = 1;
+	var lives = 10;
 	var level = 1;
 	var self = this;
 	var showNextLevelSprite = false;
 	var showGameOverSprite = false;
+	var showNewGameHoverSprite = false;
 	var updateDraw = false;
 
 	var backgroundLeftSprite = null;
@@ -21,7 +22,10 @@ function PlayState () {
 	var scoreSprite = null;
 	var livesSprite = null;
 	var nextLevelSprite = null;
+
 	var gameOverSprite = null;
+	var newGameSprite = null;
+	var newGameHoverSprite = null;
 
 	this.setup = function ( options ) {
 		jaws.context.clearRect(0,0,jaws.width,jaws.height)
@@ -68,9 +72,24 @@ function PlayState () {
 
 		gameOverSprite = new jaws.Sprite ( { image: 'images/play/game_over.png', x: 0, y: 0 } );
 
+		newGameSprite = new jaws.Sprite ( {
+			image: 'images/play/new_game.png',
+			x: ( numOfColumns * boxWidth ) / 2,
+			y: 200,
+			anchor: 'center'
+		} );
+
+		newGameHoverSprite = new jaws.Sprite ( {
+			image: 'images/play/new_game_hover.png',
+			x: ( numOfColumns * boxWidth ) / 2,
+			y: 200,
+			anchor: 'center'
+		} );
+
 		this.startNewLevel ();
 
 		jaws.canvas.addEventListener ( 'click', this.handleClick, false );
+		//jaws.canvas.addEventListener ( 'click', this.handleGameOverClick, false );
 	},
 	this.handleClick = function () {
 		var column = jaws.mouse_x;
@@ -96,13 +115,13 @@ function PlayState () {
 		showGameOverSprite = false;
 
 		var numOfBoxesToGenerate = 3;
-		if ( level === 3 ) {
+		if ( level === 3 || level === 4 ) {
 			numOfBoxesToGenerate = 4;
-		} else if ( level === 5 ) {
+		} else if ( level === 5 || level === 6 ) {
 			numOfBoxesToGenerate = 5;
-		} else if ( level === 7 ) {
+		} else if ( level === 7 || level === 8) {
 			numOfBoxesToGenerate = 6;
-		} else if ( level === 9 ) {
+		} else if ( level === 9 || level === 10 ) {
 			numOfBoxesToGenerate = 7;
 		} else if ( level > 11 ) {
 			numOfBoxesToGenerate = 8;
@@ -263,7 +282,23 @@ function PlayState () {
 		}
 	},
 	this.update = function () {
-
+		if ( showGameOverSprite === true ) {
+			// determine hovers
+			var mockRectangle = {
+				x: jaws.mouse_x,
+				y: jaws.mouse_y,
+				right: jaws.mouse_x + 1,
+				bottom: jaws.mouse_y + 1
+			}
+// naredi da preveriš če se je pozicija spremenila da ne updejtaš skoz za bv
+			if ( jaws.collideRects ( mockRectangle, newGameSprite.rect () ) ) {
+				showNewGameHoverSprite = true;
+				updateDraw = true;
+			} else {
+				showNewGameHoverSprite = false;
+				updateDraw = true;
+			}
+		}
 	},
 	this.drawBoxes = function () {
 		for ( var row = 0; row < numOfRows; row++ ) {
@@ -305,6 +340,11 @@ function PlayState () {
 
 		if ( showGameOverSprite === true ) {
 			gameOverSprite.draw ();
+			newGameSprite.draw ();
+
+			if ( showNewGameHoverSprite === true ) {
+				newGameHoverSprite.draw ();
+			}
 		}
 
 		jaws.context.font = "bold 60pt Cooper Black";

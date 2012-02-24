@@ -81,6 +81,8 @@ window.onload = function () {
 	jaws.assets.add ( 'images/play/box7.png' );
 	jaws.assets.add ( 'images/play/box8.png' );
 	jaws.assets.add ( 'images/play/game_over.png' );
+	jaws.assets.add ( 'images/play/new_game.png' );
+	jaws.assets.add ( 'images/play/new_game_hover.png' );
 
 	//jaws.start ( MenuState );
 	jaws.start ( PlayState );
