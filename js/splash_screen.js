@@ -52,7 +52,7 @@ function SplashScreenState () {
 				showTitle = false;
 				setTimeout (
 					function () {
-						//jaws.switchGameState ( PlayState );
+						jaws.switchGameState ( PlayState );
 						jaws.canvas.removeEventListener ( 'click', self.handleClick, false );
 					},
 					1000

@@ -1,13 +1,27 @@
 function PlayState () {
 	var boxes;
-	var borderWidth = 8;
-	var numOfRows = 19;
-	var numOfColumns = 18;
+	var borderWidth = 4;
+	var numOfRows = 21;
+	//numOfRows = 10;
+	var numOfColumns = 22;
+	//numOfColumns = 10;
 	var score = 0;
 	//var lives = 10;
-	var lives = 5;
+	var lives = 1;
 	var level = 1;
 	var self = this;
+	var showNextLevelSprite = false;
+	var showGameOverSprite = false;
+	var updateDraw = false;
+
+	var backgroundLeftSprite = null;
+	var backgroundRightSprite = null;
+	var logoSprite = null;
+	var levelSprite = null
+	var scoreSprite = null;
+	var livesSprite = null;
+	var nextLevelSprite = null;
+	var gameOverSprite = null;
 
 	this.setup = function ( options ) {
 		jaws.context.clearRect(0,0,jaws.width,jaws.height)
@@ -18,6 +32,42 @@ function PlayState () {
 			level = options.level;
 		}
 
+		backgroundLeftSprite = new jaws.Sprite ( { image: 'images/play/background_left.png', x: 0, y: 0 } );
+
+		backgroundRightSprite = new jaws.Sprite ( {
+			image: 'images/play/background_right.png',
+			x: numOfColumns * boxWidth + borderWidth,
+			y: 0
+		} );
+
+		logoSprite = new jaws.Sprite ( {
+			image: "images/play/logo.png",
+			x: numOfColumns * boxWidth + borderWidth + 25,
+			y: 20
+		} );
+
+		levelSprite = new jaws.Sprite ( {
+			image: "images/play/level.png",
+			x: numOfColumns * boxWidth + borderWidth + 20,
+			y: 100
+		} );
+
+		scoreSprite = new jaws.Sprite ( {
+			image: "images/play/score.png",
+			x: numOfColumns * boxWidth + borderWidth + 20,
+			y: 260
+		} );
+
+		livesSprite = new jaws.Sprite ( {
+			image: "images/play/lives.png",
+			x: numOfColumns * boxWidth + borderWidth + 20,
+			y: 380
+		} );
+
+		nextLevelSprite = new jaws.Sprite ( { image: 'images/play/next_level.png', x: 0, y: 0 } );
+
+		gameOverSprite = new jaws.Sprite ( { image: 'images/play/game_over.png', x: 0, y: 0 } );
+
 		this.startNewLevel ();
 
 		jaws.canvas.addEventListener ( 'click', this.handleClick, false );
@@ -26,8 +76,8 @@ function PlayState () {
 		var column = jaws.mouse_x;
 		var row = jaws.mouse_y;
 
-		column = Math.floor ( column / ( boxWidth + borderWidth ) ); // TODO this does not work
-		row = Math.floor ( row / ( boxHeight + borderWidth ) ); // TODO this does not work
+		column = Math.floor ( column / boxWidth );
+		row = Math.floor ( row / boxHeight );
 		console.log ( column + ' ' + row );
 
 		if ( column < numOfColumns && row < numOfRows ) {
@@ -38,22 +88,37 @@ function PlayState () {
 			}
 		}
 	},
+	this.handleGameOverClick = function () {
+
+	},
 	this.startNewLevel = function () {
+		showNextLevelSprite = false;
+		showGameOverSprite = false;
+
 		var numOfBoxesToGenerate = 3;
-		if ( level === 2 ) {
+		if ( level === 3 ) {
 			numOfBoxesToGenerate = 4;
-		} else if ( level >= 3 ) {
+		} else if ( level === 5 ) {
 			numOfBoxesToGenerate = 5;
-		} 
+		} else if ( level === 7 ) {
+			numOfBoxesToGenerate = 6;
+		} else if ( level === 9 ) {
+			numOfBoxesToGenerate = 7;
+		} else if ( level > 11 ) {
+			numOfBoxesToGenerate = 8;
+		}
+
 		// generate boxes
 		boxes = new Array ( numOfRows );
 		for ( var row = 0; row < numOfRows; row++ ) {
 			boxes[row] = new Array ( numOfColumns );
 			for ( var column = 0; column < numOfColumns; column++ ) {
 				var boxType = Math.floor ( Math.random () * numOfBoxesToGenerate );
-				boxes[row][column] = new Box ( boxType, row, column, borderWidth );
+				boxes[row][column] = new Box ( boxType, row, column );
 			}
 		}
+
+		updateDraw = true;
 	},
 	this.removeBox = function ( row, column ) {
 		if ( this.hasSameNeighbour ( row, column ) === false ) {
@@ -65,6 +130,7 @@ function PlayState () {
 		this.collapsBoxes ();
 
 		this.checkMovesLeft ();
+		updateDraw = true;
 	},
 	this.removeBoxes = function ( row, column ) {
 		var thisType = boxes[row][column].boxType;
@@ -178,11 +244,22 @@ function PlayState () {
 
 		if ( lives > 0 ) {
 			// new level
-			jaws.canvas.removeEventListener ( 'click', self.handleClick, false );
-			jaws.switchGameState ( MidLevelState, null, { score: score, lives: lives, level: level + 1 } );
+			showNextLevelSprite = true;
+			level = level + 1;
+			setTimeout (
+				function () {
+					self.startNewLevel ();
+				},
+				3000
+			);
+
+			//jaws.canvas.removeEventListener ( 'click', self.handleClick, false );
+			//jaws.switchGameState ( MidLevelState, null, { score: score, lives: lives, level: level + 1 } );
 		} else {
+			showGameOverSprite = true;
 			jaws.canvas.removeEventListener ( 'click', self.handleClick, false );
-			jaws.switchGameState ( GameOverState, null, score );
+			jaws.canvas.addEventListener ( 'click', this.handleGameOverClick, false );
+			//jaws.switchGameState ( GameOverState, null, score );
 		}
 	},
 	this.update = function () {
@@ -198,43 +275,58 @@ function PlayState () {
 		}
 	},
 	this.draw = function () {
+		if ( updateDraw === false ) {
+			return;
+		}
+
 		jaws.context.clearRect(0,0,jaws.width,jaws.height)
+
+		backgroundLeftSprite.draw ();
+		backgroundRightSprite.draw ();
+		logoSprite.draw ();
+		levelSprite.draw ();
+		scoreSprite.draw ();
+		livesSprite.draw ();
 
 		// draw border
 		jaws.context.lineWidth = borderWidth;
 
-		// top horizontal
-		jaws.context.moveTo ( 0, borderWidth / 2 );
-		jaws.context.lineTo ( jaws.width, borderWidth / 2 );
-		jaws.context.stroke ();
-
-		// left vertical
-		jaws.context.moveTo ( borderWidth / 2, 0 );
-		jaws.context.lineTo ( borderWidth / 2, jaws.height );
-		jaws.context.stroke ();
-
-		// bottom horizontal
-		jaws.context.moveTo ( 0, jaws.height - ( borderWidth / 2 ) );
-		jaws.context.lineTo ( jaws.width, jaws.height - ( borderWidth / 2 ) );
-		jaws.context.stroke ();
-
-		// right vertical
-		jaws.context.moveTo ( jaws.width - ( borderWidth / 2 ), 0 );
-		jaws.context.lineTo ( jaws.width - ( borderWidth / 2 ), jaws.height );
-		jaws.context.stroke ();
-
 		// middle vertical
-		jaws.context.moveTo ( 558, 0 );
-		jaws.context.lineTo ( 558, jaws.height );
+		jaws.context.strokeStyle =  "black";
+		jaws.context.moveTo ( boxWidth * numOfColumns + (borderWidth / 2), 0 );
+		jaws.context.lineTo ( boxWidth * numOfColumns + (borderWidth / 2), jaws.height );
 		jaws.context.stroke ();
 
 		this.drawBoxes ();
 
-		/*jaws.context.font = "bold 25pt terminal";
+		if ( showNextLevelSprite === true ) {
+			nextLevelSprite.draw ();
+		}
+
+		if ( showGameOverSprite === true ) {
+			gameOverSprite.draw ();
+		}
+
+		jaws.context.font = "bold 60pt Cooper Black";
 		jaws.context.lineWidth = 10;
-		jaws.context.fillStyle =  "Blue";
-		jaws.context.strokeStyle =  "rgba(200,200,200,0.0)"
-		jaws.context.fillText ( "Score: " + score, numOfColumns * boxWidth + 10, 50 );
-		jaws.context.fillText ( "Lives: " + lives, numOfColumns * boxWidth + 10, 100 );*/
+		jaws.context.fillStyle =  "rgba(64,64,65, 1)";
+		jaws.context.strokeStyle =  "rgba(64,64,65, 1)";
+
+		jaws.context.fillText ( level, numOfColumns * boxWidth + 90, 210 );
+
+		jaws.context.font = "bold 40pt Cooper Black";
+		if ( score < 100 ) {
+			jaws.context.fillText ( score, numOfColumns * boxWidth + 90, 340 );
+		} else if ( score < 1000 ) {
+			jaws.context.fillText ( score, numOfColumns * boxWidth + 70, 340 );
+		} else if ( score < 10000 ) {
+			jaws.context.fillText ( score, numOfColumns * boxWidth + 50, 340 );
+		} else {
+			jaws.context.fillText ( score, numOfColumns * boxWidth + 30, 340 );
+		}
+
+		jaws.context.fillText ( lives, numOfColumns * boxWidth + 90, 470 );
+
+		updateDraw = false;
 	}
 }

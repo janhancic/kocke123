@@ -15,24 +15,26 @@ Object.extend = function(subc, superc) {
 }
 
 var boxTypes = [];
-boxTypes[0] = 'images/1.jpg';
-boxTypes[1] = 'images/2.jpg';
-boxTypes[2] = 'images/3.jpg';
-boxTypes[3] = 'images/4.jpg';
-boxTypes[4] = 'images/5.jpg';
+boxTypes[0] = 'images/play/box1.png';
+boxTypes[1] = 'images/play/box2.png';
+boxTypes[2] = 'images/play/box3.png';
+boxTypes[3] = 'images/play/box4.png';
+boxTypes[4] = 'images/play/box5.png';
+boxTypes[5] = 'images/play/box6.png';
+boxTypes[6] = 'images/play/box7.png';
+boxTypes[7] = 'images/play/box8.png';
 
-var boxWidth = 30;
-var boxHeight = 30;
+var boxWidth = 25;
+var boxHeight = 25;
 
-function Box ( boxType, row, column, borderWidth ) {
+function Box ( boxType, row, column ) {
 	this.boxType = boxType;
 	this.row = row;
 	this.column = column;
-	this.borderWidth = borderWidth;
 	this.width = boxWidth;
 	this.height = boxHeight;
-	this.x = this.column * this.width + this.borderWidth;
-	this.y = this.row * this.height + this.borderWidth;
+	this.x = this.column * this.width;
+	this.y = this.row * this.height;
 
 	jaws.Sprite.call ( this, { image: boxTypes[this.boxType], x: this.x, y: this.y } );
 	this.setWidth ( boxWidth );
@@ -43,8 +45,8 @@ Object.extend ( Box, jaws.Sprite );
 Box.prototype.setPosition = function ( row, column ) {
 	this.row = row;
 	this.column = column;
-	this.x = this.column * this.width + this.borderWidth;
-	this.y = this.row * this.height + this.borderWidth;
+	this.x = this.column * this.width;
+	this.y = this.row * this.height;
 }
 
 window.onload = function () {
@@ -52,8 +54,8 @@ window.onload = function () {
 	jaws.assets.add("bullet.png")*/
 
 	/*jaws.assets.add ( 'images/menu_bg.png' );
-	jaws.assets.add ( 'images/title.png' );
-	jaws.assets.add ( 'images/1.jpg' );
+	jaws.assets.add ( 'images/title.png' );*/
+	/*jaws.assets.add ( 'images/1.jpg' );
 	jaws.assets.add ( 'images/2.jpg' );
 	jaws.assets.add ( 'images/3.jpg' );
 	jaws.assets.add ( 'images/4.jpg' );
@@ -63,7 +65,24 @@ window.onload = function () {
 	jaws.assets.add ( 'images/splash_screen/logo.png' );
 	jaws.assets.add ( 'images/splash_screen/title.png' );
 
+	jaws.assets.add ( 'images/play/background_left.png' );
+	jaws.assets.add ( 'images/play/background_right.png' );
+	jaws.assets.add ( 'images/play/logo.png' );
+	jaws.assets.add ( 'images/play/level.png' );
+	jaws.assets.add ( 'images/play/score.png' );
+	jaws.assets.add ( 'images/play/lives.png' );
+	jaws.assets.add ( 'images/play/next_level.png' );
+	jaws.assets.add ( 'images/play/box1.png' );
+	jaws.assets.add ( 'images/play/box2.png' );
+	jaws.assets.add ( 'images/play/box3.png' );
+	jaws.assets.add ( 'images/play/box4.png' );
+	jaws.assets.add ( 'images/play/box5.png' );
+	jaws.assets.add ( 'images/play/box6.png' );
+	jaws.assets.add ( 'images/play/box7.png' );
+	jaws.assets.add ( 'images/play/box8.png' );
+	jaws.assets.add ( 'images/play/game_over.png' );
+
 	//jaws.start ( MenuState );
-	//jaws.start ( PlayState );
-	jaws.start ( SplashScreenState );
+	jaws.start ( PlayState );
+	//jaws.start ( SplashScreenState );
 }
