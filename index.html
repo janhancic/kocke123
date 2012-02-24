@@ -2,12 +2,26 @@
 <html>
 	<head>
 		<title>Kocke 123</title>
-		<link type="text/css" rel="stylesheet" href="css/kocke123.css" />
+		<style type="text/css">
+		body {
+			background-color: #BAC7CD;
+			margin: 0;
+			padding: 0;
+		}
+
+		canvas {
+			display: block;
+			width: 800px;
+			height: 527px;
+			border: 4px solid black;
+			margin-top: 30px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		</style>
 	</head>
 	<body>
-		<canvas id="canvas" width="800" height="600"></canvas>
-		FPS: <span id="fps"></span>
-		<span id="info"></span>
+		<canvas id="canvas" width="800" height="527"></canvas>
 
 		<script src="../../jawsjs/src/core.js"></script>
 		<script src="../../jawsjs/src/assets.js"></script>
@@ -15,6 +29,11 @@
 		<script src="../../jawsjs/src/sprite.js"></script>
 		<script src="../../jawsjs/src/input.js"></script>
 		<script src="../../jawsjs/src/game_loop.js"></script>
+		<script src="js/splash_screen.js"></script>
+		<script src="js/menu.js"></script>
+		<script src="js/play.js"></script>
+		<script src="js/game_over.js"></script>
+		<script src="js/mid_level.js"></script>
 		<script src="js/kocke123.js"></script>
 	</body>
 </html>
