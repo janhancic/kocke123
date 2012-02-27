@@ -3,6 +3,17 @@
 	<head>
 		<title>Kocke 123</title>
 <style type="text/css">
+@font-face {
+	font-family: 'CooperBlackRegular';
+	src: url('/kocke123/fonts/coopbl-webfont.eot');
+	src: url('/kocke123/fonts/coopbl-webfont.eot?#iefix') format('embedded-opentype'),
+		url('/kocke123/fonts/coopbl-webfont.woff') format('woff'),
+		url('/kocke123/fonts/coopbl-webfont.ttf') format('truetype'),
+		url('/kocke123/fonts/coopbl-webfont.svg#CooperBlackRegular') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
 body {
 	background-color: #BAC7CD;
 	margin: 0;
@@ -21,21 +32,20 @@ canvas {
 </style>
 	</head>
 	<body>
+		<span style="font-family: 'CooperBlackRegular';"> </span>
 		<canvas id="canvas" width="800" height="525"></canvas>
 
-		<script src="../../jawsjs/src/core.js"></script>
-		<script src="../../jawsjs/src/assets.js"></script>
-		<script src="../../jawsjs/src/gfx.js"></script>
-		<script src="../../jawsjs/src/collision_detection.js"></script>
-		<script src="../../jawsjs/src/rect.js"></script>
-		<script src="../../jawsjs/src/sprite.js"></script>
-		<script src="../../jawsjs/src/input.js"></script>
-		<script src="../../jawsjs/src/game_loop.js"></script>
+		<script src="../jaws/src/core.js"></script>
+		<script src="../jaws/src/assets.js"></script>
+		<script src="../jaws/src/gfx.js"></script>
+		<script src="../jaws/src/collision_detection.js"></script>
+		<script src="../jaws/src/rect.js"></script>
+		<script src="../jaws/src/sprite.js"></script>
+		<script src="../jaws/src/input.js"></script>
+		<script src="../jaws/src/game_loop.js"></script>
+		<script src="js/object_extend.js"></script>
 		<script src="js/splash_screen.js"></script>
-		<script src="js/menu.js"></script>
 		<script src="js/play.js"></script>
-		<script src="js/game_over.js"></script>
-		<script src="js/mid_level.js"></script>
 		<script src="js/kocke123.js"></script>
 	</body>
 </html>

@@ -47,7 +47,7 @@ function SplashScreenState () {
 		}
 
 		if ( showTitle === true ) {
-			title.alpha += 0.005;
+			title.alpha += 0.007;
 			if ( title.alpha > 1 ) {
 				showTitle = false;
 				setTimeout (
@@ -63,10 +63,6 @@ function SplashScreenState () {
 
 	this.draw = function() {
 		jaws.context.clearRect ( 0, 0, jaws.width, jaws.height );
-		/*jaws.context.fillStyle = "rgba(0, 0, 0, 0)";
-		jaws.context.fillRect(0, 0, jaws.width, jaws.height);*/
-		/*logo.draw ();
-		title.draw ();*/
 
 		background.draw ();
 		logo.draw ();

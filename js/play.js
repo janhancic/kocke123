@@ -1,15 +1,31 @@
+function Box ( boxType, row, column ) {
+	this.boxType = boxType;
+	this.row = row;
+	this.column = column;
+	this.width = kocke123.boxWidth;
+	this.height = kocke123.boxHeight;
+	this.x = this.column * this.width;
+	this.y = this.row * this.height;
+
+	jaws.Sprite.call ( this, { image: kocke123.boxTypes[this.boxType], x: this.x, y: this.y } );
+	this.setWidth ( kocke123.boxWidth );
+	this.setHeight ( kocke123.boxHeight );
+}
+Object.extend ( Box, jaws.Sprite );
+
+Box.prototype.setPosition = function ( row, column ) {
+	this.row = row;
+	this.column = column;
+	this.x = this.column * this.width;
+	this.y = this.row * this.height;
+}
+
 function PlayState () {
-	var boxes;
-	var borderWidth = 4;
-	var numOfRows = 21;
-	//numOfRows = 10;
-	var numOfColumns = 22;
-	//numOfColumns = 10;
-	var score = 0;
-	//var lives = 10;
-	var lives = 10;
-	var level = 1;
 	var self = this;
+	var boxes;
+	var score = 0;
+	var lives = kocke123.numOfLives;
+	var level = 1;
 	var showNextLevelSprite = false;
 	var showGameOverSprite = false;
 	var showNewGameHoverSprite = false;
@@ -27,9 +43,10 @@ function PlayState () {
 	var newGameSprite = null;
 	var newGameHoverSprite = null;
 
-	this.setup = function ( options ) {
-		jaws.context.clearRect(0,0,jaws.width,jaws.height)
+	var previousMouseX = 0;
+	var previousMouseY = 0;
 
+	this.setup = function ( options ) {
 		if ( options ) {
 			score = options.score;
 			lives = options.lives;
@@ -40,31 +57,31 @@ function PlayState () {
 
 		backgroundRightSprite = new jaws.Sprite ( {
 			image: 'images/play/background_right.png',
-			x: numOfColumns * boxWidth + borderWidth,
+			x: kocke123.numOfColumns * kocke123.boxWidth + kocke123.borderWidth,
 			y: 0
 		} );
 
 		logoSprite = new jaws.Sprite ( {
 			image: "images/play/logo.png",
-			x: numOfColumns * boxWidth + borderWidth + 25,
+			x: kocke123.numOfColumns * kocke123.boxWidth + kocke123.borderWidth + 25,
 			y: 20
 		} );
 
 		levelSprite = new jaws.Sprite ( {
 			image: "images/play/level.png",
-			x: numOfColumns * boxWidth + borderWidth + 20,
+			x: kocke123.numOfColumns * kocke123.boxWidth + kocke123.borderWidth + 20,
 			y: 100
 		} );
 
 		scoreSprite = new jaws.Sprite ( {
 			image: "images/play/score.png",
-			x: numOfColumns * boxWidth + borderWidth + 20,
+			x: kocke123.numOfColumns * kocke123.boxWidth + kocke123.borderWidth + 20,
 			y: 260
 		} );
 
 		livesSprite = new jaws.Sprite ( {
 			image: "images/play/lives.png",
-			x: numOfColumns * boxWidth + borderWidth + 20,
+			x: kocke123.numOfColumns * kocke123.boxWidth + kocke123.borderWidth + 20,
 			y: 380
 		} );
 
@@ -74,48 +91,66 @@ function PlayState () {
 
 		newGameSprite = new jaws.Sprite ( {
 			image: 'images/play/new_game.png',
-			x: ( numOfColumns * boxWidth ) / 2,
+			x: ( kocke123.numOfColumns * kocke123.boxWidth ) / 2,
 			y: 200,
 			anchor: 'center'
 		} );
 
 		newGameHoverSprite = new jaws.Sprite ( {
 			image: 'images/play/new_game_hover.png',
-			x: ( numOfColumns * boxWidth ) / 2,
+			x: ( kocke123.numOfColumns * kocke123.boxWidth ) / 2,
 			y: 200,
 			anchor: 'center'
 		} );
 
 		this.startNewLevel ();
 
-		jaws.canvas.addEventListener ( 'click', this.handleClick, false );
+		jaws.canvas.addEventListener ( 'click', self.handleClick, false );
 		//jaws.canvas.addEventListener ( 'click', this.handleGameOverClick, false );
 	},
 	this.handleClick = function () {
 		var column = jaws.mouse_x;
 		var row = jaws.mouse_y;
 
-		column = Math.floor ( column / boxWidth );
-		row = Math.floor ( row / boxHeight );
-		console.log ( column + ' ' + row );
+		column = Math.floor ( column / kocke123.boxWidth );
+		row = Math.floor ( row / kocke123.boxHeight );
+		//console.log ( column + ' ' + row );
 
-		if ( column < numOfColumns && row < numOfRows ) {
+		if ( column < kocke123.numOfColumns && row < kocke123.numOfRows ) {
 			// "playing" field was clicked
-			// now check if there is a box there ...
-			if ( boxes[row][column] !== null ) {
+			if ( boxes[row][column] !== null ) { // now check if there is a box there ...
 				self.removeBox ( row, column );
 			}
 		}
 	},
 	this.handleGameOverClick = function () {
+		var mockRectangle = {
+			x: jaws.mouse_x,
+			y: jaws.mouse_y,
+			right: jaws.mouse_x + 1,
+			bottom: jaws.mouse_y + 1
+		}
+
+		if ( jaws.collideRects ( mockRectangle, newGameSprite.rect () ) === true ) {
+			level = 1;
+			score = 0;
+			lives = kocke123.numOfLives;
+			showNextLevelSprite = false;
+			showGameOverSprite = false;
+			jaws.canvas.removeEventListener ( 'click', self.handleGameOverClick, false );
+			jaws.canvas.addEventListener ( 'click', self.handleClick, false );
+			updateDraw = true;
+			self.startNewLevel ();
+		}
 
 	},
 	this.startNewLevel = function () {
 		showNextLevelSprite = false;
 		showGameOverSprite = false;
+		//showGameOverSprite = true;
 
 		var numOfBoxesToGenerate = 3;
-		if ( level === 3 || level === 4 ) {
+		if ( level === 2 || level === 3 || level === 4 ) {
 			numOfBoxesToGenerate = 4;
 		} else if ( level === 5 || level === 6 ) {
 			numOfBoxesToGenerate = 5;
@@ -128,11 +163,25 @@ function PlayState () {
 		}
 
 		// generate boxes
-		boxes = new Array ( numOfRows );
-		for ( var row = 0; row < numOfRows; row++ ) {
-			boxes[row] = new Array ( numOfColumns );
-			for ( var column = 0; column < numOfColumns; column++ ) {
-				var boxType = Math.floor ( Math.random () * numOfBoxesToGenerate );
+		var middleRow = Math.floor ( kocke123.numOfRows / 2 );
+		var middleColumn = Math.floor ( kocke123.numOfColumns / 2 );
+		boxes = new Array ( kocke123.numOfRows );
+		for ( var row = 0; row < kocke123.numOfRows; row++ ) {
+			boxes[row] = new Array ( kocke123.numOfColumns );
+			for ( var column = 0; column < kocke123.numOfColumns; column++ ) {
+				var boxType = null;
+				if ( row === middleRow && ( column === middleColumn - 1 || column === middleColumn || column === middleColumn + 1 ) ) { // put first three boxes (box types) in the middle of the grid ... just for fun :)
+					if ( column === middleColumn - 1 ) {
+						boxType = 0;
+					} else if ( column === middleColumn ) {
+						boxType = 1;
+					} else if ( column === middleColumn + 1) {
+						boxType = 2;
+					}
+				} else {
+					boxType = Math.floor ( Math.random () * numOfBoxesToGenerate );
+				}
+
 				boxes[row][column] = new Box ( boxType, row, column );
 			}
 		}
@@ -161,7 +210,7 @@ function PlayState () {
 		}
 
 		// check right
-		if ( column !== numOfColumns - 1 && boxes[row][column + 1] !== null && boxes[row][column + 1].boxType === thisType ) {
+		if ( column !== kocke123.numOfColumns - 1 && boxes[row][column + 1] !== null && boxes[row][column + 1].boxType === thisType ) {
 			this.removeBoxes ( row, column + 1);
 		}
 
@@ -171,7 +220,7 @@ function PlayState () {
 		}
 
 		// check bottom
-		if ( row !== numOfRows - 1 && boxes[row + 1][column] !== null && boxes[row + 1][column].boxType === thisType ) {
+		if ( row !== kocke123.numOfRows - 1 && boxes[row + 1][column] !== null && boxes[row + 1][column].boxType === thisType ) {
 			this.removeBoxes ( row + 1, column );
 		}
 	},
@@ -184,7 +233,7 @@ function PlayState () {
 		}
 
 		// check right
-		if ( column !== numOfColumns - 1 && boxes[row][column + 1] !== null && boxes[row][column + 1].boxType === boxes[row][column].boxType ) {
+		if ( column !== kocke123.numOfColumns - 1 && boxes[row][column + 1] !== null && boxes[row][column + 1].boxType === boxes[row][column].boxType ) {
 			return true;
 		}
 
@@ -194,7 +243,7 @@ function PlayState () {
 		}
 
 		// check bottom
-		if ( row !== numOfRows - 1 && boxes[row + 1][column] !== null && boxes[row + 1][column].boxType === boxes[row][column].boxType ) {
+		if ( row !== kocke123.numOfRows - 1 && boxes[row + 1][column] !== null && boxes[row + 1][column].boxType === boxes[row][column].boxType ) {
 			return true;
 		}
 
@@ -202,8 +251,8 @@ function PlayState () {
 	},
 	this.collapsBoxes = function () {
 		// collapse vertically
-		for ( var row = numOfRows - 1; row > 0; row-- ) {
-			for ( var column = 0; column < numOfColumns; column++ ) {
+		for ( var row = kocke123.numOfRows - 1; row > 0; row-- ) {
+			for ( var column = 0; column < kocke123.numOfColumns; column++ ) {
 				if ( boxes[row][column] === null ) {
 					for ( var checkRow = row - 1; checkRow >= 0; checkRow-- ) {
 						if ( boxes[checkRow][column] !== null ) {
@@ -218,10 +267,10 @@ function PlayState () {
 		}
 
 		// collapse horizontally
-		for ( var column = 0; column < numOfColumns - 1; column++ ) {
-			if ( boxes[numOfRows - 1][column] === null ) {
+		/*for ( var column = 0; column < kocke123.numOfColumns - 1; column++ ) {
+			if ( boxes[kocke123.numOfRows - 1][column] === null ) {
 				// this column is empty, move all columns to the right of it one space to the left
-				for ( var row = 0; row < numOfRows; row++ ) {
+				for ( var row = 0; row < kocke123.numOfRows; row++ ) {
 					boxes[row][column] = boxes[row][column + 1];
 					boxes[row][column + 1] = null;
 					if ( boxes[row][column] !== null ) {
@@ -229,11 +278,46 @@ function PlayState () {
 					}
 				}
 			}
+		}*/
+
+		// collapse horizontally
+		var middleColumn = Math.floor ( kocke123.numOfColumns / 2 );
+		for ( var column = 0; column < kocke123.numOfColumns - 1; column++ ) {
+			if ( boxes[kocke123.numOfRows - 1][column] === null ) {
+				// found empty column
+				if ( column < middleColumn ) {
+					// move all columns left from this column one position right
+					for ( var tmpColumn = column; tmpColumn > 0; tmpColumn-- ) {
+						for ( var tmpRow = 0; tmpRow < kocke123.numOfRows; tmpRow++ ) {
+							boxes[tmpRow][tmpColumn] = boxes[tmpRow][tmpColumn - 1];
+							boxes[tmpRow][tmpColumn - 1] = null
+							if ( boxes[tmpRow][tmpColumn] !== null ) {
+								boxes[tmpRow][tmpColumn].setPosition ( tmpRow, tmpColumn );
+							}
+						}
+					}
+				} else {
+					// move all columns right from this column one position left
+					for ( var tmpColumn = column; tmpColumn < kocke123.numOfColumns; tmpColumn++ ) {
+						for ( var tmpRow = 0; tmpRow < kocke123.numOfRows; tmpRow++ ) {
+							if ( tmpColumn + 1 === kocke123.numOfColumns ) {
+								boxes[tmpRow][tmpColumn] = null;
+							} else {
+								boxes[tmpRow][tmpColumn] = boxes[tmpRow][tmpColumn + 1];
+								boxes[tmpRow][tmpColumn + 1] = null
+								if ( boxes[tmpRow][tmpColumn] !== null ) {
+									boxes[tmpRow][tmpColumn].setPosition ( tmpRow, tmpColumn );
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	},
 	this.checkMovesLeft = function () {
-		for ( var row = 0; row < numOfRows; row++ ) {
-			for ( var column = 0; column < numOfColumns; column++ ) {
+		for ( var row = 0; row < kocke123.numOfRows; row++ ) {
+			for ( var column = 0; column < kocke123.numOfColumns; column++ ) {
 				if ( boxes[row][column] !== null ) {
 					if ( this.hasSameNeighbour ( row, column ) === true ) {
 						return true;
@@ -244,8 +328,8 @@ function PlayState () {
 
 		// check how mayn boxes are left, if more than 0 remove a life
 		var hasBoxesLeft = false;
-		for ( var row = 0; row < numOfRows; row++ ) {
-			for ( var column = 0; column < numOfColumns; column++ ) {
+		for ( var row = 0; row < kocke123.numOfRows; row++ ) {
+			for ( var column = 0; column < kocke123.numOfColumns; column++ ) {
 				if ( boxes[row][column] !== null ) {
 					hasBoxesLeft = true;
 					break;
@@ -269,40 +353,41 @@ function PlayState () {
 				function () {
 					self.startNewLevel ();
 				},
-				3000
+				4000
 			);
-
-			//jaws.canvas.removeEventListener ( 'click', self.handleClick, false );
-			//jaws.switchGameState ( MidLevelState, null, { score: score, lives: lives, level: level + 1 } );
 		} else {
 			showGameOverSprite = true;
 			jaws.canvas.removeEventListener ( 'click', self.handleClick, false );
-			jaws.canvas.addEventListener ( 'click', this.handleGameOverClick, false );
-			//jaws.switchGameState ( GameOverState, null, score );
+			jaws.canvas.addEventListener ( 'click', self.handleGameOverClick, false );
 		}
 	},
 	this.update = function () {
 		if ( showGameOverSprite === true ) {
-			// determine hovers
-			var mockRectangle = {
-				x: jaws.mouse_x,
-				y: jaws.mouse_y,
-				right: jaws.mouse_x + 1,
-				bottom: jaws.mouse_y + 1
-			}
-// naredi da preveriš če se je pozicija spremenila da ne updejtaš skoz za bv
-			if ( jaws.collideRects ( mockRectangle, newGameSprite.rect () ) ) {
-				showNewGameHoverSprite = true;
-				updateDraw = true;
-			} else {
-				showNewGameHoverSprite = false;
-				updateDraw = true;
+			if ( jaws.mouse_x !== previousMouseX && jaws.mouse_y !== previousMouseY ) {
+				// determine button hovers
+				var mockRectangle = {
+					x: jaws.mouse_x,
+					y: jaws.mouse_y,
+					right: jaws.mouse_x + 1,
+					bottom: jaws.mouse_y + 1
+				}
+
+				if ( jaws.collideRects ( mockRectangle, newGameSprite.rect () ) ) {
+					showNewGameHoverSprite = true;
+					updateDraw = true;
+				} else {
+					showNewGameHoverSprite = false;
+					updateDraw = true;
+				}
+
+				previousMouseX = jaws.mouse_x;
+				previousMouseY = jaws.mouse_y;
 			}
 		}
 	},
 	this.drawBoxes = function () {
-		for ( var row = 0; row < numOfRows; row++ ) {
-			for ( var column = 0; column < numOfColumns; column++ ) {
+		for ( var row = 0; row < kocke123.numOfRows; row++ ) {
+			for ( var column = 0; column < kocke123.numOfColumns; column++ ) {
 				if ( boxes[row][column] !== null ) {
 					boxes[row][column].draw ();
 				}
@@ -324,12 +409,12 @@ function PlayState () {
 		livesSprite.draw ();
 
 		// draw border
-		jaws.context.lineWidth = borderWidth;
+		jaws.context.lineWidth = kocke123.borderWidth;
 
 		// middle vertical
 		jaws.context.strokeStyle =  "black";
-		jaws.context.moveTo ( boxWidth * numOfColumns + (borderWidth / 2), 0 );
-		jaws.context.lineTo ( boxWidth * numOfColumns + (borderWidth / 2), jaws.height );
+		jaws.context.moveTo ( kocke123.boxWidth * kocke123.numOfColumns + (kocke123.borderWidth / 2), 0 );
+		jaws.context.lineTo ( kocke123.boxWidth * kocke123.numOfColumns + (kocke123.borderWidth / 2), jaws.height );
 		jaws.context.stroke ();
 
 		this.drawBoxes ();
@@ -347,25 +432,27 @@ function PlayState () {
 			}
 		}
 
-		jaws.context.font = "bold 60pt Cooper Black";
+		//jaws.context.font = "bold 60pt Cooper Black";
+		jaws.context.font = "bold 60pt CooperBlackRegular";
 		jaws.context.lineWidth = 10;
 		jaws.context.fillStyle =  "rgba(64,64,65, 1)";
 		jaws.context.strokeStyle =  "rgba(64,64,65, 1)";
 
-		jaws.context.fillText ( level, numOfColumns * boxWidth + 90, 210 );
+		jaws.context.fillText ( level, kocke123.numOfColumns * kocke123.boxWidth + 90, 210 );
 
-		jaws.context.font = "bold 40pt Cooper Black";
+		//jaws.context.font = "bold 40pt Cooper Black";
+		jaws.context.font = "bold 40pt CooperBlackRegular";
 		if ( score < 100 ) {
-			jaws.context.fillText ( score, numOfColumns * boxWidth + 90, 340 );
+			jaws.context.fillText ( score, kocke123.numOfColumns * kocke123.boxWidth + 90, 340 );
 		} else if ( score < 1000 ) {
-			jaws.context.fillText ( score, numOfColumns * boxWidth + 70, 340 );
+			jaws.context.fillText ( score, kocke123.numOfColumns * kocke123.boxWidth + 70, 340 );
 		} else if ( score < 10000 ) {
-			jaws.context.fillText ( score, numOfColumns * boxWidth + 50, 340 );
+			jaws.context.fillText ( score, kocke123.numOfColumns * kocke123.boxWidth + 50, 340 );
 		} else {
-			jaws.context.fillText ( score, numOfColumns * boxWidth + 30, 340 );
+			jaws.context.fillText ( score, kocke123.numOfColumns * kocke123.boxWidth + 30, 340 );
 		}
 
-		jaws.context.fillText ( lives, numOfColumns * boxWidth + 90, 470 );
+		jaws.context.fillText ( lives, kocke123.numOfColumns * kocke123.boxWidth + 90, 470 );
 
 		updateDraw = false;
 	}

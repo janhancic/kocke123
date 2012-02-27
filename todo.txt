@@ -1,0 +1,9 @@
+dizajn:
+	- poravnat cifre v levem stolpcu
+	- narediti Ž (zivljenja)
+	- novi gumbi za "nova igra" in "shrani rezultat"
+
+code:
+	- collapsing bug
+	- submitanje rezultata
+	- pripravit da se bo dal plug-inat različne slike
