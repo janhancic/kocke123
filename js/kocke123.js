@@ -85,6 +85,6 @@ window.onload = function () {
 	jaws.assets.add ( 'images/play/new_game_hover.png' );
 
 	//jaws.start ( MenuState );
-	jaws.start ( PlayState );
-	//jaws.start ( SplashScreenState );
+	//jaws.start ( PlayState );
+	jaws.start ( SplashScreenState );
 }
